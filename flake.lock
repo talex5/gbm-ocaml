@@ -1,0 +1,49 @@
+{
+  "nodes": {
+    "libdrm-ocaml": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1774445873,
+        "narHash": "sha256-vw6y6ijpPMd9c8xHv6LTgyoZzaY5NvtvMB8nOe8w2pY=",
+        "owner": "talex5",
+        "repo": "libdrm-ocaml",
+        "rev": "faecbe84e2bb668670ce2c5f2a09bc784d8afefc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "talex5",
+        "ref": "main",
+        "repo": "libdrm-ocaml",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1774446256,
+        "narHash": "sha256-xAuwGqIiX2hxXvFtwHKfDzbEUuOXrxwrsbm/JIncju0=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "80d35dcbb5de99cb55d239a268e214937600b74c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "release-25.11",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "libdrm-ocaml": "libdrm-ocaml",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

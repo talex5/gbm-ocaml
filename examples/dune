@@ -1,0 +1,3 @@
+(executables
+ (names atomic)
+ (libraries gbm))
