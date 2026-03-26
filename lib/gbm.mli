@@ -135,6 +135,37 @@ and Bo : sig
     int * int -> t
   (** Like [create], but raises a somewhat user-friendly exception on error. *)
 
+  type plane = {
+    fd : Unix.file_descr;
+    stride : int;
+    offset : int;
+  }
+
+  type import_data =
+    | Fd of {
+        width : int;
+        height : int;
+        format : Drm.Fourcc.t;
+        modifier : Drm.Modifier.t;
+        planes : plane list;
+      }
+
+  val import :
+    Device.t ->
+    flags:Flags.t ->
+    import_data ->
+    (t, Unix.error) result
+  (** Create a GBM buffer object from a foreign object.
+
+      This function imports a foreign object and creates a new GBM BO for it.
+      This enables using the foreign object with a display API such as KMS.
+
+      The GBM BO shares the underlying pixels but its life-time is independent
+      of the foreign object.
+
+      @return A newly allocated buffer object that should be freed with
+      {!destroy} when no longer needed. *)
+
   val destroy : t -> unit
 
   val get_modifier : t -> Drm.Modifier.t

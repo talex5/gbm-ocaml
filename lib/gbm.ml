@@ -32,12 +32,49 @@ module Bo = struct
 
   module F = C.Functions.Bo
 
+  type plane = {
+    fd : Unix.file_descr;
+    stride : int;
+    offset : int;
+  }
+
+  type import_data =
+    | Fd of {
+        width : int;
+        height : int;
+        format : Drm.Fourcc.t;
+        modifier : Drm.Modifier.t;
+        planes : plane list;
+      }
+
+  let import t ~flags = function
+    | Fd { width; height; format; modifier; planes } ->
+      let module D = C.Types.Import_fd_modifier_data in
+      let data = Ctypes.make D.t in
+      Ctypes.setf data D.width width;
+      Ctypes.setf data D.height height;
+      Ctypes.setf data D.format format;
+      Ctypes.setf data D.modifier modifier;
+      Ctypes.setf data D.num_fds (List.length planes);
+      let fds = Ctypes.getf data D.fds in
+      let strides = Ctypes.getf data D.strides in
+      let offsets = Ctypes.getf data D.offsets in
+      planes |> List.iteri (fun i { fd; stride; offset } ->
+          Ctypes.CArray.set fds i fd;
+          Ctypes.CArray.set strides i stride;
+          Ctypes.CArray.set offsets i offset;
+        );
+      let buffer = Ctypes.to_voidp (Ctypes.addr data) in
+      match F.import t C.Types.Import_type.fd_modifier buffer flags with
+      | Some x, _ -> Ok x
+      | None, errno -> Error (Err.error_of_errno errno)
+
   let create t ~flags ?modifiers ~format (width, height) =
     let retval, errno =
       match modifiers with
       | None -> F.create t width height format flags
       | Some modifiers ->
-        let modifiers = Ctypes.CArray.of_list C.Functions.modifier modifiers in
+        let modifiers = Ctypes.CArray.of_list C.Types.Base_types.modifier modifiers in
         F.create_with_modifiers2
           t width height format
           modifiers.astart modifiers.alength
@@ -94,7 +131,7 @@ module Bo = struct
   }
 
   let map (type a b) ~flags ~(kind:(a, b) Bigarray.kind) t (x, y, width, height) =
-    let stride_out = Ctypes.(allocate C.Functions.int_uint32_t) 0 in
+    let stride_out = Ctypes.(allocate C.Types.Base_types.int_uint32_t) 0 in
     let map_data_out = Ctypes.(allocate (ptr void)) Ctypes.null in
     let data : (a Ctypes.ptr) =
       let untyped =
